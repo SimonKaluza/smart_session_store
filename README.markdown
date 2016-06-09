@@ -21,6 +21,7 @@ Step 2
 
 Generate a migration like below (Assuming you have configured your session table named as "sessions":
 
+```ruby
 class xxx_migration_name < ActiveRecord::Migration
   def change
     create_table :sessions do |t|
@@ -34,7 +35,7 @@ class xxx_migration_name < ActiveRecord::Migration
     add_index :sessions, :updated_at
   end
 end
-
+```
 
 Step 3
 -------
