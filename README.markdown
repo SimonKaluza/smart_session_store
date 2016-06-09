@@ -21,7 +21,7 @@ Step 2
 
 Generate a migration like below (Assuming you have configured your session table named as "sessions":
 
-class <%= migration_class_name %> < ActiveRecord::Migration
+class xxx_migration_name < ActiveRecord::Migration
   def change
     create_table :sessions do |t|
       t.string :session_id, :null => false
