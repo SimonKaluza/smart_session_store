@@ -6,7 +6,7 @@ A session store that avoids the pitfalls usually associated with concurrent acce
 
 Derived from SqlSessionStore, see http://railsexpress.de/blog/articles/2005/12/19/roll-your-own-sql-session-store
 
-Requires rails 3 or higher.
+Requires rails 3 or 4. Rails 5 support coming soon.
 
 Installation
 ==========
@@ -18,7 +18,23 @@ gem 'smart_session'
 
 Step 2
 -------
-Generate your sessions table using rake db:sessions:create
+
+Generate a migration like below (Assuming you have configured your session table named as "sessions":
+
+class <%= migration_class_name %> < ActiveRecord::Migration
+  def change
+    create_table :sessions do |t|
+      t.string :session_id, :null => false
+      t.text :data
+      t.integer :lock_version
+      t.timestamps
+    end
+
+    add_index :sessions, :session_id, :unique => true
+    add_index :sessions, :updated_at
+  end
+end
+
 
 Step 3
 -------
