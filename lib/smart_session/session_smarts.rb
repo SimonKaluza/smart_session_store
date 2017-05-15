@@ -1,20 +1,20 @@
 module SmartSession
   module SessionSmarts
     def marshalize(data)
-      Base64.encode64(Marshal.dump(data))
+      Base64.encode64(data.to_msgpack)
     end
 
     def unmarshalize(data)
-      Marshal.load(Base64.decode64(data))
+      MessagePack.unpack(Base64.decode64(data))
     end
-    
-    
+
+
     def exception_is_unique_index_violation(e)
       e =~ /Duplicate entry/ || #mysql
       e =~ /duplicate key value violates unique constraint/ || #postgres
       e =~ /column session_id is not unique/ #sqlite3
     end
-    
+
     def save_session(session, data)
       original_data = unmarshalize(session.data)
       original_marshalled_data = session.data
@@ -22,13 +22,13 @@ module SmartSession
       deleted_keys = original_data.keys - data.keys
       changed_keys = []
       data.each {|k,v| changed_keys << k if Marshal.dump( original_data[k]) != Marshal.dump( v)}
-      
+
       return nil if changed_keys.empty? && deleted_keys.empty?
 
       if SmartSession::SqlSession.locking_enabled?
         begin
           if session.id
-            while !session.update_session_optimistically(marshalize(data))        
+            while !session.update_session_optimistically(marshalize(data))
               fresh_session = get_fresh_session session, false
               return nil unless fresh_session
               session,data = merge_sessions fresh_session, session, original_marshalled_data, changed_keys, deleted_keys, data
@@ -43,7 +43,7 @@ module SmartSession
             retry
           end
           raise
-        end  
+        end
       else
         begin
           SmartSession::SqlSession.transaction do
@@ -57,13 +57,13 @@ module SmartSession
           end
           raise
         end
-      end  
+      end
 
-   
+
       return data, session
     end
-    
-    
+
+
     def get_fresh_session session, lock
       if session.id
         fresh_session = session_class.find_by_primary_id session.id, lock
@@ -71,7 +71,7 @@ module SmartSession
         fresh_session = session_class.find_session session.session_id, false
       end
     end
-    
+
     def merge_sessions fresh_session, session, original_marshalled_data, changed_keys, deleted_keys, data
       if fresh_session
         data_changed = fresh_session.data != original_marshalled_data

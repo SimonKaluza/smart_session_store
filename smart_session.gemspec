@@ -13,6 +13,7 @@ Gem::Specification.new do |gem|
   gem.homepage      = ""
   gem.add_dependency "actionpack", '>=3.0.0', '< 5.0.0'
   gem.add_dependency "activerecord", '>=3.0.0', '< 5.0.0'
+  gem.add_dependency "msgpack", '~>1.1.0'
   gem.add_development_dependency "mysql2"
   gem.add_development_dependency "sqlite3"
   gem.add_development_dependency "pg"
